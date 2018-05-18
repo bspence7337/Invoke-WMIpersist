@@ -1,16 +1,8 @@
-﻿<#
+<#
 
 Invoke-WMIPersist is used to create a WMI Event subscription for persistence. 
 This is designed for Powershell 2.0 as no New-CIMInstance calls are made.
 
-Author: @bSpence7337
-License: BSD 3-Clause
-Required Dependencies: None
-Optional Dependencies: None
-Credit for original work: 
-@mattifestation PowerSploit/Persistence https://github.com/PowerShellMafia/PowerSploit/tree/master/Persistence
-@Sw4mp_f0x -PowerLurker https://github.com/Sw4mpf0x/PowerLurk
-Atomic-red-team https://github.com/redcanaryco/atomic-red-team
 
 #>
 
@@ -22,11 +14,6 @@ function Invoke-WMIpersist
 .SYNOPSIS
 
 Creates a WMI Event subscription that triggers 120 seconds after bootup.
-
-Author: Benjamin Spence (@bSpence7337)
-License: BSD 3-Clause
-Required Dependencies: None
-Optional Dependencies: None
 
 .DESCRIPTION
 
@@ -100,10 +87,6 @@ function Invoke-WMICleanup
 
 Deletes a specified WMI Event subscription based on $EventName.
 
-Author: Benjamin Spence (@bSpence7337)
-License: BSD 3-Clause
-Required Dependencies: None
-Optional Dependencies: None
 
 .DESCRIPTION
 
@@ -115,15 +98,18 @@ Specify the event name you want to remove.
 
 .EXAMPLE
 
-Invoke-WMICleanup -EventName NotePad4Life
+Invoke-WMICleanup -EventName NotePad4Life -EventType CommandLineEventConsumer
+Invoke-WMICleanup -EventName NotePad4Life -EventType ActiveScriptEventConsumer
 
 #>
     Param(
         [Parameter(Mandatory=$True)]
-        [string]$EventName
+        [string]$EventName,
+        [Parameter(Mandatory=$True)]
+        [string]$EventType,
     )
 
-$EventConsumerToCleanup = Get-WmiObject -Namespace root/subscription -Class CommandLineEventConsumer -Filter "Name = '$EventName'"
+$EventConsumerToCleanup = Get-WmiObject -Namespace root/subscription -Class $EventType -Filter "Name = '$EventName'"
 $EventFilterToCleanup = Get-WmiObject -Namespace root/subscription -Class __EventFilter -Filter "Name = '$EventName'"
 $FilterConsumerBindingToCleanup = Get-WmiObject -Namespace root/subscription -Query "REFERENCES OF {$($EventConsumerToCleanup.__RELPATH)} WHERE ResultClass = __FilterToConsumerBinding"
 
@@ -136,5 +122,4 @@ $EventFilterToCleanup | Remove-WmiObject
 function GetEvents
 {
     Get-WMIObject -Namespace root\Subscription -Class __EventFilter
-    Get-WMIObject -Namespace root\Subscription -Class __EventConsumer
 }
