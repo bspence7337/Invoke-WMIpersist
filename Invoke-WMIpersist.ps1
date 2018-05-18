@@ -136,4 +136,5 @@ $EventFilterToCleanup | Remove-WmiObject
 function GetEvents
 {
     Get-WMIObject -Namespace root\Subscription -Class __EventFilter
+    Get-WMIObject -Namespace root\Subscription -Class __EventConsumer
 }
